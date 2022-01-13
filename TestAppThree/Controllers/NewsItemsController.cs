@@ -22,7 +22,8 @@ namespace TestAppThree.Controllers
         // GET: NewsItems
         public async Task<IActionResult> Index()
         {
-            return View(await _context.NewsItems.ToListAsync());
+            var appDbContext = _context.NewsItems.Include(n => n.Customer);
+            return View(await appDbContext.ToListAsync());
         }
 
         // GET: NewsItems/Details/5
@@ -34,6 +35,7 @@ namespace TestAppThree.Controllers
             }
 
             var newsItem = await _context.NewsItems
+                .Include(n => n.Customer)
                 .FirstOrDefaultAsync(m => m.NewsItemID == id);
             if (newsItem == null)
             {
@@ -46,6 +48,7 @@ namespace TestAppThree.Controllers
         // GET: NewsItems/Create
         public IActionResult Create()
         {
+            ViewData["CustomerId"] = new SelectList(_context.Customer, "CustomerID", "CustomerID");
             return View();
         }
 
@@ -54,7 +57,7 @@ namespace TestAppThree.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("NewsItemID,Title,Body,PostedOn,ImageURL")] NewsItem newsItem)
+        public async Task<IActionResult> Create([Bind("NewsItemID,Title,Body,PostedOn,ImageURL,CustomerId")] NewsItem newsItem)
         {
             if (ModelState.IsValid)
             {
@@ -62,6 +65,7 @@ namespace TestAppThree.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CustomerId"] = new SelectList(_context.Customer, "CustomerID", "CustomerID", newsItem.CustomerId);
             return View(newsItem);
         }
 
@@ -78,6 +82,7 @@ namespace TestAppThree.Controllers
             {
                 return NotFound();
             }
+            ViewData["CustomerId"] = new SelectList(_context.Customer, "CustomerID", "CustomerID", newsItem.CustomerId);
             return View(newsItem);
         }
 
@@ -86,7 +91,7 @@ namespace TestAppThree.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("NewsItemID,Title,Body,PostedOn,ImageURL")] NewsItem newsItem)
+        public async Task<IActionResult> Edit(int id, [Bind("NewsItemID,Title,Body,PostedOn,ImageURL,CustomerId")] NewsItem newsItem)
         {
             if (id != newsItem.NewsItemID)
             {
@@ -113,6 +118,7 @@ namespace TestAppThree.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CustomerId"] = new SelectList(_context.Customer, "CustomerID", "CustomerID", newsItem.CustomerId);
             return View(newsItem);
         }
 
@@ -125,6 +131,7 @@ namespace TestAppThree.Controllers
             }
 
             var newsItem = await _context.NewsItems
+                .Include(n => n.Customer)
                 .FirstOrDefaultAsync(m => m.NewsItemID == id);
             if (newsItem == null)
             {

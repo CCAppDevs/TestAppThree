@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using TestAppThree.Data;
 using TestAppThree.Models;
@@ -18,7 +19,13 @@ namespace TestAppThree.Controllers
 
         public IActionResult Index()
         {
-            List<NewsItem> news = _context.NewsItems.ToList();
+            List<NewsItem> news = _context.NewsItems
+                .Include(news => news.Customer)
+                // .Where(news => news.Customer.CustomerName == "jesse")
+                .OrderByDescending(news => news.CustomerId)
+                .Take(1)
+                .ToList();
+
             return View(news);
         }
 
