@@ -34,6 +34,7 @@ namespace TestAppThree.Controllers
             }
 
             var customer = await _context.Customer
+                //.Include(customer => customer.NewsItems)
                 .FirstOrDefaultAsync(m => m.CustomerID == id);
             if (customer == null)
             {
